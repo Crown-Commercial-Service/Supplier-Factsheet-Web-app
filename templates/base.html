@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Organization Dashboard</title>
+<style>
+/* Basic styles for layout and responsiveness */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #fafafa;
+}
+.container {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+h2 {
+    color: darkblue;
+    margin: 0 0 10px 0;
+}
+.flex {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 10px;
+}
+.left-pane {
+    width: 30%;
+    min-height: 400px;
+    padding: 10px;
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+}
+.right-pane {
+    width: 70%;
+    min-height: 400px;
+    padding: 10px;
+    border: 1px solid lightgray;
+    box-sizing: border-box;
+}
+/* Button styles */
+.responsive-search-btn {
+    flex: 1;
+    max-width: 150px;
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+.responsive-search-btn:hover {
+    background-color: #0069d9;
+}
+
+
+.organization-table{
+    max-height: 400px;
+    overflow: auto;
+}
+
+
+
+.responsive-search-btn:active {
+    transform: scale(0.98);
+    background-color: #005cbf;
+}
+
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 16px; /* medium size */
+    color: #333; /* dark grey text for professionalism */
+  }
+  .custom-table th {
+    background-color: #FFA500; /* professional green */
+    color: white;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  .custom-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+  }
+ /* Zebra striping for rows */
+  .custom-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  /* Hover effect for rows */
+  .custom-table tr:hover {
+    background-color: #f1f1f1;
+  }
+
+  /* Basic reset and font */
+  table.professional-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    font-size: 14px; /* medium size for professionalism */
+    color: #333; /* dark text for better readability */
+  }
+
+  /* Header style */
+  table.professional-table th {
+    background-color: #f4f4f4; /* light neutral colour for header */
+    color: #222;
+    padding: 10px;
+    text-align: left;
+  }
+
+  /* Cell style */
+  table.professional-table td {
+    padding: 10px;
+  }
+
+  /* Optional: zebra striping for rows for better readability */
+  table.professional-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+  }
+
+  /* Remove borders for a cleaner look */
+  table.professional-table,
+  table.professional-table th,
+  table.professional-table td {
+    border: none;
+  }
+
+  /* Optional: add hover effect for better UX */
+  table.professional-table tbody tr:hover {
+    background-color: #f0f0f0;
+  }
+
+@media (max-width: 500px) {
+    .responsive-search-btn {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+</style>
+
+ <script>
+        function updateGraph() {
+            var selectedSymbol = document.getElementById("stock_symbol").value;
+            var graphImg = document.getElementById("stock_graph");
+            graphImg.src = "{{ url_for('plot_graph', symbol='') }}" + selectedSymbol;
+        }
+</script>
+</head>
+<body>
+
+<!-- Main layout: Search form and Organisation Details -->
+<div class="flex">
+
+    <!-- Search Form -->
+    <div class="left-pane">
+        <h2>Organisation Search</h2>
+        <form method="POST" action="/">
+            <div style="display: flex; align-items: center; width: 100%;">
+                <label for="countryCode" style="width: 120px;">Country Code:</label>
+                <input type="text" id="countryCode" name="countryCode" value="{{ request.form.get('countryCode') or '' }}"  placeholder="Enter country code" style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px;">
+            </div>
+            <div style="display: flex; align-items: center; width: 100%; margin-top:10px;">
+                <label for="entityName" style="width: 120px;">Entity Name:</label>
+                <input type="text" id="entityName" name="entityName" value="{{ request.form.get('entityName') or '' }}" placeholder="Enter Entity Name" style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px;">
+            </div>
+            <div style="display: flex; align-items: center; width: 100%; margin-top:10px;">
+                <label for="companyNo" style="width: 120px;">Company No:</label>
+                <input type="text" id="companyNo" name="companyNo" value="{{ request.form.get('companyNo') or '' }}" placeholder="Enter company registration number" style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px;">
+            </div>
+            <div style="display: flex; align-items: center; width: 100%; margin-top:10px;">
+                <label for="duns1" style="width: 120px;">DUNS Number:</label>
+                <input type="text" id="duns1" name="duns1" value="{{ request.form.get('duns1') or '' }}" placeholder="Enter DUNS" style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px;">
+            </div>
+            <div style="width: 100%; display: flex; justify-content: flex-start; margin-top: 10px;">
+                <button type="submit" class="responsive-search-btn">Search</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Organisation Details -->
+    <div class="right-pane">
+        <h2>Organisation Details</h2>
+
+        {% if message %}
+            <p style="font-size: 0.9em; font-weight: bold; color: {% if message == 'Organisation not found' %}black{% else %}black{% endif %};">
+                {{ message }}
+            </p>
+        {% endif %}
+
+        {% if org_table %}
+            <div class="organization-table">
+                {{ org_table|safe }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!--    <div class="container">-->
+<!--        <h2>Organisation information</h2>-->
+<!--        <div class="placeholder">Organisation Information Content</div>-->
+<!--    </div>-->
+
+    <div class="container">
+        <h2>Failure Score</h2>
+                {% if failurescore_table %}
+            <div class="organization-table">
+                {{ failurescore_table|safe }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="container">
+        <h2>Organization News</h2>
+        {{ news_html|safe }}
+    </div>
+
+    <div class="container">
+        <h2>Key People</h2>
+
+        {% if key_people_table %}
+            <div>
+                <span> company number: {{company_no}} </span>
+            </div>
+            <div class="organization-table">
+                {{ key_people_table|safe }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="container">
+    <h2>Stock Market</h2>
+    <label for="stock_symbol">Select Stock Symbol:</label>
+    <select id="stock_symbol" onchange="updateGraph()">
+       {% if stock_options %}
+        {% for option in stock_options %}
+        <option value="{{ option }}" {% if option == selected_symbol %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+    {% else %}
+        <option value="">No options available</option>
+    {% endif %}
+    </select>
+    <div style="margin-top:20px;">
+        <img id="stock_graph" src="{{ url_for('plot_graph', symbol=selected_symbol) }}" alt="chart" style="width:100%; max-width:600px;">
+    </div>
+<!--        <div class="placeholder">Stock Market Content</div>-->
+    </div>
+
+</body>
+</html>
