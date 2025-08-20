@@ -8,7 +8,7 @@
 /* Basic styles for layout and responsiveness */
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: Helvetica, sans-serif;
     margin: 20px;
     background-color: #fafafa;
 }
@@ -43,19 +43,38 @@ h2 {
     border: 1px solid lightgray;
     box-sizing: border-box;
 }
+
+.site-banner {
+    width: 100%;
+    background-color: #37474f; /* Banner background colour */
+    color: #ffffff; /* Text colour */
+    padding: 15px 20px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    border-radius: 10px 10px 0 0;
+}
+
+.banner-content {
+    font-size: 1.5em; /* Adjust size as needed */
+    font-weight: bold;
+    font-family: Helvetica;
+}
 /* Button styles */
 .responsive-search-btn {
     flex: 1;
     max-width: 150px;
     padding: 8px;
-    background-color: #007bff;
-    color: white;
+    background-color: #07eec4;
+    color: black;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.1s;
+    border-radius: 8px;
+    box-shadow: 0 4px 0 rgba(0,54,24,255);
 }
 .responsive-search-btn:hover {
-    background-color: #0069d9;
+    background-color: #0ca087;
 }
 
 
@@ -74,36 +93,58 @@ h2 {
 
 .custom-table {
     width: 100%;
-    border-collapse: collapse;
-    font-family: Arial, sans-serif;
-    font-size: 16px; /* medium size */
-    color: #333; /* dark grey text for professionalism */
-  }
-  .custom-table th {
-    background-color: #FFA500; /* professional green */
-    color: white;
+    border-collapse: separate; /* Changed from collapse to allow rounded corners */
+    border-spacing: 0; /* Eliminates gaps between cells for a cleaner look */
+    font-family: Helvetica, sans-serif;
+    font-size: 16px;
+    colour: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for modern depth */
+    margin: 25px 0;
+    min-width: 400px;
+    border-radius: 8px; /* Rounded corners for the table */
+    overflow: hidden; /* Ensures corners are rounded properly */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Style the table headers */
+.custom-table thead tr {
+    background-color: #9b1b47;
+    color: #ffffff;
+    border-radius: 8px 8px 0 0; /* Rounded top corners */
+}
+
+/* Style header cells */
+.custom-table th {
     padding: 12px 15px;
-    border: 1px solid #ddd;
     text-align: left;
-  }
-  .custom-table td {
+}
+
+/* Style table data cells */
+.custom-table td {
     padding: 12px 15px;
-    border: 1px solid #ddd;
-  }
- /* Zebra striping for rows */
-  .custom-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  /* Hover effect for rows */
-  .custom-table tr:hover {
+}
+
+/* Zebra striping for rows */
+.custom-table tbody tr:nth-child(even) {
+    background-color: #f3f3f3;
+}
+
+/* Hover effect for rows */
+.custom-table tbody tr:hover {
     background-color: #f1f1f1;
-  }
+}
+
+/* Style for the last row if needed */
+.custom-table tbody tr:last-of-type {
+    border-bottom: none; /* Remove default border for cleaner look */
+}
+
 
   /* Basic reset and font */
   table.professional-table {
     width: 100%;
     border-collapse: collapse;
-    font-family: Arial, sans-serif;
+    font-family: Helvetica, sans-serif;
     font-size: 14px; /* medium size for professionalism */
     color: #333; /* dark text for better readability */
   }
@@ -144,6 +185,8 @@ h2 {
         width: 100%;
     }
 }
+
+
 </style>
 
  <script>
@@ -156,6 +199,10 @@ h2 {
 </head>
 <body>
 
+<!-- Banner -->
+<div class="site-banner">
+    <div class="banner-content">Supplier Fact Sheet</div>
+</div>
 <!-- Main layout: Search form and Organisation Details -->
 <div class="flex">
 
@@ -165,7 +212,7 @@ h2 {
         <form method="POST" action="/">
             <div style="display: flex; align-items: center; width: 100%;">
                 <label for="countryCode" style="width: 120px;">Country Code:</label>
-                <input type="text" id="countryCode" name="countryCode" value="{{ request.form.get('countryCode') or '' }}"  placeholder="Enter country code" style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px;">
+                <input type="text" id="countryCode" name="countryCode" value="{{ request.form.get('countryCode') or '' }}"  placeholder="Enter country code"   style="flex: 1; min-width: 150px; max-width: 300px; padding: 5px; ">
             </div>
             <div style="display: flex; align-items: center; width: 100%; margin-top:10px;">
                 <label for="entityName" style="width: 120px;">Entity Name:</label>
