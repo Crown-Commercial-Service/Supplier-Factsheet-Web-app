@@ -309,6 +309,15 @@ def index():
         duns = request.form.get('duns1')
         country_code = request.form.get('countryCode')
         company_no = request.form.get('companyNo')
+        if len(name) == 0 or len(duns) == 0 or len(country_code) == 0 or len(company_no) == 0:
+            message = "You have not entered any required information"
+            return  render_template('base.html', message=message,
+                           org_table=org_table, failurescore_table=failurescore_table,
+                           news_html=news_html,company_no=company_no,
+                           key_people_table=key_people_table,
+                           stock_options=stock_options,
+                           selected_symbol=selected_symbol)
+
         df = search_organization(name, duns, country_code, company_no)
 
         if len(name) == 0 and len(company_no) == 0 and len(country_code) == 0 and len(duns) > 0:
@@ -317,8 +326,8 @@ def index():
             company_no = df['CompaniesHouseNumber'].iloc[0]
 
         if len(name) == 0 and len(country_code) == 0 and len(company_no) > 0 and len(duns) > 0:
-            import sys
-            print("here", file=sys.stderr)
+            # import sys
+            # print("here", file=sys.stderr)
             name = df['Name'].iloc[0]
             country_code = df['BillingCountryCode'].iloc[0]
             company_no = df['CompaniesHouseNumber'].iloc[0]
