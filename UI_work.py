@@ -6,7 +6,7 @@ import datetime
 from bs4 import BeautifulSoup
 from datetime import date, timedelta
 import matplotlib.pyplot as plt
-import matplotlib.dates
+import matplotlib
 matplotlib.use('Agg')
 import matplotlib.dates as mdates
 import io
