@@ -311,8 +311,9 @@ def index():
         duns = request.form.get('duns1')
         country_code = request.form.get('countryCode')
         company_no = request.form.get('companyNo')
-        if len(name) == 0 or len(duns) == 0 or len(country_code) == 0 or len(company_no) == 0:
-            message = "You have not entered any required information"
+        #if user has not put any information in
+        if len(name) == 0 and len(duns) == 0 and len(country_code) == 0 and len(company_no) == 0:
+            message = "You have not entered any of the required information"
             return  render_template('base.html', message=message,
                            org_table=org_table, failurescore_table=failurescore_table,
                            news_html=news_html,company_no=company_no,
@@ -320,13 +321,25 @@ def index():
                            stock_options=stock_options,
                            selected_symbol=selected_symbol)
 
-        df = search_organization(name, duns, country_code, company_no)
+        #if user has  only put company house number which is not sufficient
+        if len(name) == 0 and len(duns) == 0 and len(country_code) == 0 and len(company_no) > 0:
+            message = "Please enter more information in the form as the company number is not sufficient"
+            return  render_template('base.html', message=message,
+                           org_table=org_table, failurescore_table=failurescore_table,
+                           news_html=news_html,company_no=company_no,
+                           key_people_table=key_people_table,
+                           stock_options=stock_options,
+                           selected_symbol=selected_symbol)
 
+
+        df = search_organization(name, duns, country_code, company_no)
+        # if only duns provided since it is unique it can find it
         if len(name) == 0 and len(company_no) == 0 and len(country_code) == 0 and len(duns) > 0:
             name = df['Name'].iloc[0]
             country_code = df['BillingCountryCode'].iloc[0]
             company_no = df['CompaniesHouseNumber'].iloc[0]
 
+        # if only  duns and company code provided
         if len(name) == 0 and len(country_code) == 0 and len(company_no) > 0 and len(duns) > 0:
             # import sys
             # print("here", file=sys.stderr)
@@ -346,9 +359,10 @@ def index():
 
         else:
             if len(name) == 0 and len(country_code) == 0 and len(duns) == 0 and len(company_no) > 0:
-                message = f"No data found for {company_no} please provide more information"
-            else:
-                message = "Organisation not found"
+                message = f"No organisation details found for {company_no} please provide more information for better results"
+            if len(country_code) == 0 and len(duns) == 0 and len(company_no) == 0 and len(name) > 0:
+                message = f"No organisation details found for {name} please provide more information for better results"
+
 
 
     return render_template('base.html', message=message,
@@ -364,4 +378,4 @@ if __name__ == '__main__':
     app.run(debug=True)
 
     # search_organization(name="TESCO PLC", duns=216854067, country_code="GB", company_no="00445790")
-    # todo when only company name is giving solve this
+
