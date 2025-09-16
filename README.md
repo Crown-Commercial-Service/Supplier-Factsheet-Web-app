@@ -15,7 +15,7 @@ follow these instructions:
 - COMPANYHOUSE_API_KEY
 - ALPHA_API_KEY
 - GRAPH_API_KEY
-- 
+
 2. Then go to the `UI_work.py` and run the file and go to your local host to use the app. 
 
 Note: example inputs to fill in the UI form: company name="TESCO PLC", duns=216854067, country code="GB", company number="00445790"
