@@ -6,9 +6,16 @@ import datetime
 from bs4 import BeautifulSoup
 from datetime import date, timedelta
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.dates as mdates
 import io
+from dotenv import load_dotenv
+import os
+
 app = Flask(__name__)
+
+load_dotenv()
 
 def search_organization(name, duns, country_code, company_no):
     """ This function searches for an organization by its name,duns,country code and company no.
@@ -33,7 +40,7 @@ def search_organization(name, duns, country_code, company_no):
                 "OnDemandChecks": "true"
             }
         }
-        url = "https://prod-25.uksouth.logic.azure.com:443/workflows/5319fad3d7e341a89183b32df72671ba/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=bzgkWjBp4_GTsfJ6A7-YBsFiZCT2DfIf1L43ZxNU4MM"
+        url = os.getenv("SEARCH_ORG_URL")
         response = requests.post(url, headers={"Content-Type": "application/json"}, json=payload)
         data = response.json()
         # Convert response to DataFrame
@@ -51,7 +58,7 @@ def failureScore(duns):
   :return:
   dataframe containing failure score information about the organization
   """
-  url = 'https://prod-03.uksouth.logic.azure.com:443/workflows/fad7fbb09c4b4c16b5c4abcb3af3b75d/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=Lilvq4QtOJeawHR9OK9cbQnjWlFddjzMvI-4nJNusVE'
+  url = os.getenv("FAILURE_SCORE_URL")
   headers = {'Content-Type': 'application/json'}
 
   payload = {
@@ -101,7 +108,8 @@ def search_google_news(Company_name, num_results=10, time_period_months=12):
     """
     Company_name = Company_name.replace(' ', '+')
     start_date = (datetime.datetime.now() - timedelta(days=time_period_months * 30)).strftime('%Y-%m-%d')
-    url = f"https://news.google.com/rss/search?q={Company_name}"
+    url = os.getenv("COMPANY_NEWS_URL")
+    url = f"{url}{Company_name}"
 
     try:
         response = requests.get(url)
@@ -145,9 +153,10 @@ def key_people(company_number):
       return pd.DataFrame()
 
     # Construct the API request
-    url = f"https://api.company-information.service.gov.uk/company/{company_number}/officers"
-    compnayhouse_API_key = 'a17ad3d4-ee27-4301-a84f-8e0970a1b3b4'
-    headers = {'Authorization': compnayhouse_API_key}
+    url = os.getenv("KEY_PEOPLE_URL")
+    url = f"{url}/{company_number}/officers"
+    companyhouse_API_key = os.getenv("COMPANYHOUSE_API_KEY")
+    headers = {'Authorization': companyhouse_API_key}
 
     try:
         # Make the API request
@@ -195,7 +204,7 @@ def get_options_and_dropdown(company_name):
   dataframe containing dropdown options of the company that would be used for the graphing
   """
 
-  alpha_API_key = '7LOX5ZRD7Q04IF25' # currently API key needs to be changed to better one that gives unlimited use
+  alpha_API_key = os.getenv("ALPHA_API_KEY")# currently API key needs to be changed to better one that gives unlimited use
   name_search = f'https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords={company_name}&apikey={alpha_API_key}'
   response = requests.get(name_search)
   data = response.json()
@@ -226,7 +235,7 @@ def graph(selected_symbol):
     start_date_str = start_date.strftime('%Y-%m-%d')
 
     # Fetch stock market data from API
-    graph_API_key = 'fd6da8697b5c42e7804695f4861f21af'
+    graph_API_key = os.getenv("GRAPH_API_KEY")
     graph_url = f'https://api.twelvedata.com/time_series?symbol={selected_symbol}&interval=1day&apikey={graph_API_key}&timezone=Europe%2FLondon&outputsize=5000&start_date={start_date_str}&end_date={end_date_str}'
     response = requests.get(graph_url)
     graph_data = response.json()
@@ -291,6 +300,7 @@ def plot_graph(symbol):
     """
     graph_img = graph(symbol)
     return Response(graph_img, mimetype='image/png')
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     """
@@ -309,16 +319,38 @@ def index():
         duns = request.form.get('duns1')
         country_code = request.form.get('countryCode')
         company_no = request.form.get('companyNo')
-        df = search_organization(name, duns, country_code, company_no)
+        #if user has not put any information in
+        if len(name) == 0 and len(duns) == 0 and len(country_code) == 0 and len(company_no) == 0:
+            message = "You have not entered any of the required information"
+            return  render_template('base.html', message=message,
+                           org_table=org_table, failurescore_table=failurescore_table,
+                           news_html=news_html,company_no=company_no,
+                           key_people_table=key_people_table,
+                           stock_options=stock_options,
+                           selected_symbol=selected_symbol)
 
+        #if user has  only put company house number which is not sufficient
+        if len(name) == 0 and len(duns) == 0 and len(country_code) == 0 and len(company_no) > 0:
+            message = "Please enter more information in the form as the company number is not sufficient"
+            return  render_template('base.html', message=message,
+                           org_table=org_table, failurescore_table=failurescore_table,
+                           news_html=news_html,company_no=company_no,
+                           key_people_table=key_people_table,
+                           stock_options=stock_options,
+                           selected_symbol=selected_symbol)
+
+
+        df = search_organization(name, duns, country_code, company_no)
+        # if only duns provided since it is unique it can find it
         if len(name) == 0 and len(company_no) == 0 and len(country_code) == 0 and len(duns) > 0:
             name = df['Name'].iloc[0]
             country_code = df['BillingCountryCode'].iloc[0]
             company_no = df['CompaniesHouseNumber'].iloc[0]
 
+        # if only  duns and company code provided
         if len(name) == 0 and len(country_code) == 0 and len(company_no) > 0 and len(duns) > 0:
-            import sys
-            print("here", file=sys.stderr)
+            # import sys
+            # print("here", file=sys.stderr)
             name = df['Name'].iloc[0]
             country_code = df['BillingCountryCode'].iloc[0]
             company_no = df['CompaniesHouseNumber'].iloc[0]
@@ -335,9 +367,10 @@ def index():
 
         else:
             if len(name) == 0 and len(country_code) == 0 and len(duns) == 0 and len(company_no) > 0:
-                message = f"No data found for {company_no} please provide more information"
-            else:
-                message = "Organisation not found"
+                message = f"No organisation details found for {company_no} please provide more information for better results"
+            if len(country_code) == 0 and len(duns) == 0 and len(company_no) == 0 and len(name) > 0:
+                message = f"No organisation details found for {name} please provide more information for better results"
+
 
 
     return render_template('base.html', message=message,
@@ -353,4 +386,4 @@ if __name__ == '__main__':
     app.run(debug=True)
 
     # search_organization(name="TESCO PLC", duns=216854067, country_code="GB", company_no="00445790")
-    # todo when only company name is giving solve this
+
